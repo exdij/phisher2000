@@ -14,4 +14,7 @@ public interface UniqueVisitRepository extends JpaRepository<UniqueVisit, Long> 
     @Modifying
     @Query("update UniqueVisit u set u.uniqueVisitsCount = u.uniqueVisitsCount + 1 where u.date = :date")
     void incrementCounterForDay(LocalDate date);
+
+    @Query("select sum(u.uniqueVisitsCount) from UniqueVisit u")
+    Long getSumFromAllDays();
 }
