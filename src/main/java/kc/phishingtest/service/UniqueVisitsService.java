@@ -1,11 +1,13 @@
-package service;
+package kc.phishingtest.service;
 
-import entity.UniqueVisit;
+import kc.phishingtest.entity.UniqueVisit;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import repository.UniqueVisitRepository;
+import kc.phishingtest.repository.UniqueVisitRepository;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDate;
 
 @Service
@@ -30,10 +32,17 @@ public class UniqueVisitsService {
         return uniqueVisitRepository.save(uniqueVisit);
     }
 
-    public void incrementCounterIfUniqueForDate(boolean alreadyVisited) {
-        if(!alreadyVisited) {
+    public String incrementCounterIfUniqueForDate(boolean alreadyVisited, HttpServletResponse response) {
+        if(alreadyVisited) {
+            return "I've seen you before";
+        } else {
+            Cookie cookie = new Cookie("visited", "true");
+            cookie.setMaxAge(30 * 24 * 60 * 60); // expires in 30 days
+            cookie.setHttpOnly(true);
+            response.addCookie(cookie);
             LocalDate now = LocalDate.now();
             uniqueVisitRepository.incrementCounterForDay(now);
+            return "I've never seen this man in my life :)";
         }
     }
 }

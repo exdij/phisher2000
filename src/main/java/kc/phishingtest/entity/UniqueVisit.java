@@ -1,4 +1,4 @@
-package entity;
+package kc.phishingtest.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,6 +19,7 @@ import java.time.LocalDate;
 @Setter
 @Builder
 public class UniqueVisit {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

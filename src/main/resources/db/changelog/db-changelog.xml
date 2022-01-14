@@ -15,4 +15,7 @@
                </column>
            </createTable>
        </changeSet>
+    <changeSet id="add autoincrement to unique_visit table" author="Kamil Cieslaar">
+        <addAutoIncrement tableName="unique_visit" columnName="id"/>
+    </changeSet>
 </databaseChangeLog>
