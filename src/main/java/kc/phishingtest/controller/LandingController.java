@@ -33,4 +33,9 @@ public class LandingController {
     public void resetDatabase(@RequestHeader(value = "key", required = false, defaultValue = " ") String key) {
         uniqueVisitsService.resetDatabase(key);
     }
+
+    @GetMapping
+    public String getBasePage() {
+        return "Emptiness";
+    }
 }
