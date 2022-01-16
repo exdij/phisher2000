@@ -4,19 +4,24 @@ import kc.phishingtest.dto.TestResultsDTO;
 import kc.phishingtest.dto.UniqueVisitDTO;
 import kc.phishingtest.entity.UniqueVisit;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import kc.phishingtest.repository.UniqueVisitRepository;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -44,17 +49,16 @@ public class UniqueVisitsService {
     }
 
     public String incrementCounterIfUniqueForDate(boolean alreadyVisited, HttpServletResponse response) {
-        if(alreadyVisited) {
-            return "I've seen you before <br> <br> Counter: " + getAllDaysSum();
-        } else {
+        if(!alreadyVisited) {
             Cookie cookie = new Cookie("visited", "true");
             cookie.setMaxAge(30 * 24 * 60 * 60); // expires in 30 days
             cookie.setHttpOnly(true);
             response.addCookie(cookie);
             LocalDate now = LocalDate.now();
             uniqueVisitRepository.incrementCounterForDay(now);
-            return "I've never seen this man in my life :) <br> <br> Counter: " + getAllDaysSum();
         }
+
+        return getWebPageContent();
     }
 
     public TestResultsDTO getTestResults(String key) {
@@ -82,5 +86,17 @@ public class UniqueVisitsService {
 
         uniqueVisitRepository.deleteAll();
         createEntitiesForNext7Days();
+    }
+
+    private String getWebPageContent() {
+        String content = "";
+        try {
+            InputStream templateInputStream = new ClassPathResource("/templates/LandingPage.html").getInputStream();
+            byte[] templateAsBytes = IOUtils.toByteArray(templateInputStream);
+            content = new String(templateAsBytes, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            log.warn(e.getMessage(), e);
+        }
+        return content;
     }
 }
